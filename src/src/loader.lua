@@ -1,0 +1,11 @@
+require 'lib.clasp'
+require 'lib.bitser'
+require 'lib.list'
+require 'lib.stack'
+
+require 'src.entity'
+require 'src.control'
+require 'src.control.button'
+require 'src.scene.boot'
+require 'src.color'
+require 'src.game'
