@@ -1,6 +1,6 @@
 function Stack()
   return setmetatable({
-    _stack = {},
+    _items = {},
     count = 0,
 
     clear = function(self)
