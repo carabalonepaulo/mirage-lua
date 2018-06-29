@@ -1,20 +1,32 @@
 Button = Control:extend {
-  init = function(self, text, x, y, width, height)
-    Control.init(self, x, y, width, height)
+  init = function(self, text, x, y, z, width, height)
+    Control.init(self, x, y, z, width, height)
+    self.events['click'] = Stack()
 
-    self.text = love.graphics.newText(Game.font, text)
-    self.textPosition = {
-      self.x, --+ self.width / 2 - self.text:getWidth() / 2,
-      self.y --+ self.height / 2 - self.text:getHeight() / 2
-    }
+    self:setText(text)
+    self:refresh()
   end,
 
-  draw = function(self)
-    Control.draw(self)
+  setText = function(self, text)
+    self.text = text
+    self.textData = love.graphics.newText(Game.font, text)
+    self.textPos = Vector2(
+      self.width / 2 - self.textData:getWidth() / 2,
+      self.height / 2 - self.textData:getHeight() / 2
+    )
+  end,
 
+  getText = function(self)
+    return self.text
+  end,
+
+  refresh = function(self)
+    self:drawBegin()
+    love.graphics.clear()
     love.graphics.setColor(255, 255, 255)
-    love.graphics.rectangle('fill', self.x, self.y, self.width, self.height)
+    love.graphics.rectangle('fill', 0, 0, self.width, self.height)
     love.graphics.setColor(0, 0, 0)
-    love.graphics.draw(self.text, self.textPosition.x, self.textPosition.y)
-  end
+    love.graphics.draw(self.textData, self.textPos.x, self.textPos.y)
+    self:drawEnd()
+  end,
 }

@@ -1,11 +1,13 @@
 require 'src.loader'
 
+Game:init()
+
 function love.load(args)
-  Game:init()
-  print(Color['Aquamarine'])
+  Game:load()
 end
 
 function love.update(dt)
+  lovebird.update()
   Game:update(dt)
 end
 

@@ -1,97 +1,70 @@
 function Stack()
-  local mt = {
-    __index = function(t, k) return rawget(t._stack, k) end,
-    __newindex = function(t, k, v) rawset(t, k, v) end
-  }
   return setmetatable({
     _stack = {},
     count = 0,
 
-    clear = function(t)
-      t._stack = {}
-      t.count = 0
+    clear = function(self)
+      self._stack = {}
+      self.count = 0
     end,
 
-    push = function(t, item)
-    t.count = t.count + 1
-      rawset(t._stack, t.count, item)
+    push = function(self, obj)
+      self.count = self.count + 1
+      rawset(self._stack, self.count, obj)
     end,
 
-    pop = function(t)
-      t.count = t.count - 1
-      return table.remove(t._stack)
+    pop = function(self)
+      self.count = self.count - 1
+      return table.remove(self._stack)
     end,
 
-    shift = function(t)
-      t.count = t.count - 1
-      return table.remove(t._stack, 1)
+    shift = function(self)
+      self.count = self.count - 1
+      return table.remove(self._stack, 1)
     end,
 
-    each = function(t, cb)
-      for i = 1, t.count do
-        cb(rawget(t._stack, i), i)
+    each = function(self, callback)
+      for i = 1, self.count do
+        callback(rawget(self._stack, i), i)
       end
     end,
 
-    map = function(t, cb)
-      for i = 1, t.count do
-        rawset(t._stack, i, cb(rawget(t._stack, i)))
+    map = function(self, callback)
+      for i = 1, self.count do
+        rawset(self._stack, i, callback(rawget(self._stack, i)))
       end
     end,
 
-    where = function(t, cb)
-      local nt = Stack()
-      for i = 1, t.count do
-        local value = rawget(t._stack, i)
-        local r = cb(value, i)
-        if r then nt:push(value) end
+    where = function(self, callback)
+      local stack = Stack()
+      for i = 1, self.count do
+        local value = rawget(self._stack, i)
+        local r = callback(value, i)
+        if r then
+          stack:push(value)
+        end
       end
-      return nt
+      return stack
     end
-  }, mt)
+  }, {
+    __index = function(self, index)
+      return rawget(self._stack, index)
+    end,
+  })
 end
 
-return Stack
-
---[[local bm = require 'benchmark'
-local reporter = bm.bm(6)
-local t = {}
-local s = Stack()
-
-reporter:report(function()
-  for i = 1, 1e6 do
-    table.insert(t, math.sin(i))
-  end
-end, 'table.insert\t')
-
-reporter:report(function()  
-  for i = 1, 1e6 do
-    s:push(math.sin(i))
-  end
-end, 'stack:push\t')
-
-print('\n')
-reporter:report(function()
-  for i = 1, #t do
-    t[i] = math.sin(i)
-  end
-end, 'table loop\t')
-
-reporter:report(function()
-  s:map(function(v) return math.sin(v) end)
-end, 'stack:map\t')
-
-print('\n')
-reporter:report(function()
-  local nt = {}
-  for i = 1, #t do
-    if i % 2 == 0 then
-      table.insert(nt, i)
-    end
-  end
-  t = nt
-end, 'table filter\t')
-
-reporter:report(function()
-  s:where(function(v) return v % 2 == 0 end)
-end, 'stack:where\t')]]
+--[[local stack = Stack()
+stack:push('Paulo')
+stack:push('Fernando')
+print(stack.count == 2 and stack.count == #stack._stack)
+stack:pop()
+print(stack.count == 1 and stack.count == #stack._stack)
+stack:push('Soreto')
+stack:push('Fernando')
+print(stack:shift() == 'Paulo')
+stack:map(function(name)
+  return 'x'
+end)
+print(stack[1] == 'x')
+stack:clear()
+print(stack.count == 0 and stack.count == #stack._stack)]]

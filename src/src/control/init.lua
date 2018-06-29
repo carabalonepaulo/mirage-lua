@@ -1,7 +1,8 @@
 Control = IEntity:extend {
-  init = function(self, x, y, width, height)
+  init = function(self, x, y, z, width, height)
     self.x = x
     self.y = y
+    self.z = z
     self.width = width
     self.height = height
     self.events = {
@@ -11,7 +12,32 @@ Control = IEntity:extend {
     }
     self.mouseOver = false
     self.debug = true
-    self.visible = false
+    self.visible = true
+    self.canvas = love.graphics.newCanvas(width, height)
+    --self.canvas:renderTo(function() self:refresh() end)
+  end,
+
+  drawBegin = function(self)
+    love.graphics.setCanvas(self.canvas)
+  end,
+
+  drawEnd = function(self)
+    love.graphics.setCanvas()
+  end,
+
+  refresh = function(self)
+  end,
+
+  setX = function(self, x)
+    self.x = x
+  end,
+
+  setY = function(self, y)
+    self.y = y
+  end,
+
+  setZ = function(self, z)
+    self.z = z
   end,
 
   isMouseOver = function(self)
@@ -21,10 +47,15 @@ Control = IEntity:extend {
            my >= self.y and my <= self.y + self.height
   end,
 
-  emit = function(self, event)
+  emit = function(self, event, ...)
+    local args = {...}
     self.events[event]:each(function(callback)
-      callback()
+      callback(unpack(args))
     end)
+  end,
+
+  on = function(self, event, callback)
+    self.events[event]:push(callback)
   end,
 
   update = function(self, dt)
@@ -39,6 +70,18 @@ Control = IEntity:extend {
         self:emit('enter')
         self.mouseOver = true
       end
+      local buttons = { 'left', 'right' }
+      for i = 1, 2 do
+        if love.mouse.isDown(i) then
+          self:emit('click', {
+            button = buttons[i],
+            mouse = {
+              x = love.mouse.getX(),
+              y = love.mouse.getY(),
+            }
+          })
+        end
+      end
     else
       if self.mouseOver then
         self:emit('leave')
@@ -48,13 +91,9 @@ Control = IEntity:extend {
   end,
 
   draw = function(self)
-    if self.debug then
-      self:drawDebug()
+    if self.canvas then
+      love.graphics.setColor(255, 255, 255)
+      love.graphics.draw(self.canvas, self.x, self.y)
     end
   end,
-
-  drawDebug = function(self)
-    love.graphics.setColor(255, 0, 0)
-    love.graphics.rectangle('line', self.x, self.y, self.width, self.height)
-  end
 }

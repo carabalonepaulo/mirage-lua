@@ -1,7 +1,11 @@
 Game = {
   init = function(self)
-    self.font = love.graphics.newFont('assets/fonts/OpenSans-Bold.ttf', 14)
+    self.font = love.graphics.newFont('assets/fonts/OpenSans-Bold.ttf', 12)
     self.scene = BootScene()
+  end,
+
+  load = function(self)
+    self.scene:load()
   end,
 
   update = function(self, dt)
@@ -13,6 +17,9 @@ Game = {
   end,
 
   call = function(self, scene)
+    if self.scene ~= nil then
+      self.scene:dispose()
+    end
     self.scene = scene
   end
 }
