@@ -1,32 +1,51 @@
-Scene = class {
-  init = function(self)
-    self.controls = List()
-  end,
+local setScissor = love.graphics.setScissor
+local Scene = class 'Scene'
 
-  add = function(self, control)
-    self.controls:add(control)
-    self:sortControls()
-  end,
+function Scene:init()
+  self.debug = false
+  self.controls = {}
+end
 
-  remove = function(self, control)
-    self.controls:remove(control)
-  end,
+function Scene:addControl(control)
+  table.insert(self.controls, control)
+  table.sort(self.controls, function(a, b) return a.z < b.z end)
+end
 
-  sortControls = function(self)
-    table.sort(self.controls._items, function(a, b)
-      return a.z < b.z
-    end)
-  end,
+-- Quando for preciso adicionar mais de um controle por chamada
+-- isso evita a reordenação da lista a cada inserção.
+function Scene:addControls(control_list)
+  for i = 1, #control_list do
+    table.insert(self.controls, control_list[i])
+  end
+  table.sort(self.controls, function(a, b) return a.z < b.z end)
+end
 
-  update = function(self, dt)
-    self.controls:each(function(control)
-      control:update(dt)
-    end)
-  end,
+function Scene:updateControls(dt)
+  local controls = self.controls
+  for i = 1, #controls do
+    if controls[i].visible then
+      controls[i]:update(dt)
+    end
+  end
+end
 
-  draw = function(self)
-    self.controls:each(function(control)
-      control:draw()
-    end)
-  end,
-}
+function Scene:update(dt)
+  self:updateControls(dt)
+end
+
+function Scene:drawControls()
+  local controls = self.controls
+  for i = 1, #controls do
+    if controls[i].visible then
+      setScissor(controls[i]:getDimensions())
+      controls[i]:draw()
+      setScissor()
+    end
+  end
+end
+
+function Scene:draw()
+  self:drawControls()
+end
+
+return Scene

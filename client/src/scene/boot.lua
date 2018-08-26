@@ -1,24 +1,18 @@
-BootScene = Scene:extend {
-  load = function(self)
-    local button = Button('Algo', 50, 50, 1, 100, 20)
-    button:on('click', function(args)
-      print(args.button) -- 'left' or 'right'
-      print(args.mouse.x, args.mouse.y)
-    end)
+local BootScene = Scene:extend('BootScene')
 
-    local button2 = Button('Algo', 75, 60, 2, 100, 20)
+function BootScene:init()
+  BootScene.super.init(self)
+  Network:connect('127.0.0.1', 5000)
+end
 
-    self:add(button)
-    self:add(button2)
-  end,
+function BootScene:update(dt)
+  BootScene.super.update(self, dt)
+  Network:update()
+end
 
-  update = function(self, dt)
-    Scene.update(self, dt)
-    
-  end,
+function BootScene:draw()
+  BootScene.super.draw(self)
+  love.graphics.print('Status: '..Network:getStatus(), 0, 0)
+end
 
-  draw = function(self)
-    Scene.draw(self)
-    
-  end
-}
+return BootScene

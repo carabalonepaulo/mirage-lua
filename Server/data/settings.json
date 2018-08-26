@@ -1,0 +1,7 @@
+{
+  "host": "*",
+  "port": 5000,
+  "motd": "Mensagem do dia!",
+
+  "max_players": 96
+}

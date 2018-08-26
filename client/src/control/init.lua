@@ -1,99 +1,90 @@
-Control = IEntity:extend {
-  init = function(self, x, y, z, width, height)
-    self.x = x
-    self.y = y
-    self.z = z
-    self.width = width
-    self.height = height
-    self.events = {
-      enter = Stack(),
-      leave = Stack(),
-      over = Stack()
-    }
-    self.mouseOver = false
-    self.debug = true
-    self.visible = true
-    self.canvas = love.graphics.newCanvas(width, height)
-    --self.canvas:renderTo(function() self:refresh() end)
-  end,
+-- Tanto a atualização quando a renderização dos controles só ocorre
+-- quando ele está VISÍVEL (preciso lembrar disso).
 
-  drawBegin = function(self)
-    love.graphics.setCanvas(self.canvas)
-  end,
+local Control = class('Control')
 
-  drawEnd = function(self)
-    love.graphics.setCanvas()
-  end,
+function Control:init(x, y, width, height)
+  self.x = x
+  self.y = y
+  self.z = 0
+  self.width = width
+  self.height = height
+  self.visible = true
+  self.events = {}
 
-  refresh = function(self)
-  end,
+  -- uso interno somente
+  self.mouse_over = false
+  self.mouse_down = false
 
-  setX = function(self, x)
-    self.x = x
-  end,
 
-  setY = function(self, y)
-    self.y = y
-  end,
+  --[[self:on('enter', function() print('enter') end)
+  self:on('leave', function() print('leave') end)
+  self:on('click', function() print('click') end)]]
+end
 
-  setZ = function(self, z)
-    self.z = z
-  end,
+function Control:getPosition()
+  return self.x, self.y
+end
 
-  isMouseOver = function(self)
-    local mx, my = love.mouse.getPosition()
+function Control:getSize()
+  return self.width, self.height
+end
 
-    return mx >= self.x and mx <= self.x + self.width and
-           my >= self.y and my <= self.y + self.height
-  end,
+function Control:getDimensions()
+  return self.x, self.y, self.width, self.height
+end
 
-  emit = function(self, event, ...)
-    local args = {...}
-    self.events[event]:each(function(callback)
-      callback(unpack(args))
-    end)
-  end,
+function Control:on(event_name, callback)
+  if not self.events[event_name] then
+    self.events[event_name] = {}
+  end
+  table.insert(self.events[event_name], callback)
+end
 
-  on = function(self, event, callback)
-    self.events[event]:push(callback)
-  end,
+function Control:emit(event_name, ...)
+  local callbacks = self.events[event_name]
+  if not callbacks or #callbacks == 0 then
+    return
+  end
+  for i = 1, #callbacks do
+    callbacks[i](...)
+  end
+end
 
-  update = function(self, dt)
-    if not self.visible then
-      return
+function Control:doEvents()
+  local x, y = love.mouse.getPosition()
+  if x > self.x and x < self.x + self.width and y > self.y and y < self.y + self.height then
+    if not self.mouse_over then
+      self:emit('enter')
     end
+    self.mouse_over = true
+    if love.mouse.isDown(1) then
+      self:emit('press')
+      self.mouse_down = true
+    elseif self.mouse_down then
+      self:emit('click')
+      self.mouse_down = false
+    end
+  else
+    if self.mouse_over then
+      self:emit('leave')
+    end
+    self.mouse_over = false
 
-    if self:isMouseOver() then
-      if self.mouseOver then
-        self:emit('over')
-      else
-        self:emit('enter')
-        self.mouseOver = true
-      end
-      local buttons = { 'left', 'right' }
-      for i = 1, 2 do
-        if love.mouse.isDown(i) then
-          self:emit('click', {
-            button = buttons[i],
-            mouse = {
-              x = love.mouse.getX(),
-              y = love.mouse.getY(),
-            }
-          })
-        end
-      end
+    if love.mouse.isDown(1) then
+      self.mouse_down_out = true
     else
-      if self.mouseOver then
-        self:emit('leave')
-        self.mouseOver = false
-      end
+      self.mouse_down_out = false
     end
-  end,
+  end
+end
 
-  draw = function(self)
-    if self.canvas then
-      love.graphics.setColor(255, 255, 255)
-      love.graphics.draw(self.canvas, self.x, self.y)
-    end
-  end,
-}
+function Control:update(dt)
+  self:doEvents()
+end
+
+function Control:draw()
+
+end
+
+return Control

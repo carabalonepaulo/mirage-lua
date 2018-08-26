@@ -1,32 +1,27 @@
-Button = Control:extend {
-  init = function(self, text, x, y, z, width, height)
-    Control.init(self, x, y, z, width, height)
-    self.events['click'] = Stack()
+local g = love.graphics
+local Button = Control:extend('Button')
+local font = love.graphics.getFont()
 
-    self:setText(text)
-    self:refresh()
-  end,
+function Button:init(text, x, y, width, height)
+  Button.super.init(self, x, y, width, height)
+  self.text = text
+  self.background_color = { 0.2, 0.2, 0.2 }
+  self.text_color = { 1, 1, 1 }
 
-  setText = function(self, text)
-    self.text = text
-    self.textData = love.graphics.newText(Game.font, text)
-    self.textPos = Vector2(
-      self.width / 2 - self.textData:getWidth() / 2,
-      self.height / 2 - self.textData:getHeight() / 2
-    )
-  end,
+  self:on('enter', function() self.background_color = { 0.4, 0.4, 0.4 } end)
+  self:on('leave', function() self.background_color = { 0.2, 0.2, 0.2 } end)
+end
 
-  getText = function(self)
-    return self.text
-  end,
+function Button:draw()
+  Button.super.draw(self)
+  local x, y, w, h = self:getDimensions()
 
-  refresh = function(self)
-    self:drawBegin()
-    love.graphics.clear()
-    love.graphics.setColor(255, 255, 255)
-    love.graphics.rectangle('fill', 0, 0, self.width, self.height)
-    love.graphics.setColor(0, 0, 0)
-    love.graphics.draw(self.textData, self.textPos.x, self.textPos.y)
-    self:drawEnd()
-  end,
-}
+  g.setColor(self.background_color)
+  g.rectangle('fill', x, y, w, h)
+  g.setColor(self.text_color)
+  x = x + (w / 2 - font:getWidth(self.text) / 2)
+  y = y + (h / 2 - font:getHeight() / 2)
+  g.print(self.text, x, y)
+end
+
+return Button
