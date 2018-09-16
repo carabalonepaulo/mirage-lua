@@ -1,27 +1,28 @@
-local g = love.graphics
+local Control = require 'src.control'
 local Button = Control:extend('Button')
-local font = love.graphics.getFont()
 
-function Button:init(text, x, y, width, height)
-  Button.super.init(self, x, y, width, height)
-  self.text = text
-  self.background_color = { 0.2, 0.2, 0.2 }
-  self.text_color = { 1, 1, 1 }
+local IMAGE_NORMAL = 1
+local IMAGE_HOVER = 2
 
-  self:on('enter', function() self.background_color = { 0.4, 0.4, 0.4 } end)
-  self:on('leave', function() self.background_color = { 0.2, 0.2, 0.2 } end)
+function Button:init(image_name, x, y)
+  self.image_name = image_name
+  self.images = {
+    ImageCache:getControl(image_name),
+    ImageCache:getControl(image_name..'_hover')
+  }
+  self.state = IMAGE_NORMAL
+
+  Button.super.init(self, x, y, self.images[1]:getWidth(),
+    self.images[1]:getHeight())
+
+  self:on('enter', function() self.state = IMAGE_HOVER end)
+  self:on('leave', function() self.state = IMAGE_NORMAL end)
 end
 
 function Button:draw()
   Button.super.draw(self)
-  local x, y, w, h = self:getDimensions()
-
-  g.setColor(self.background_color)
-  g.rectangle('fill', x, y, w, h)
-  g.setColor(self.text_color)
-  x = x + (w / 2 - font:getWidth(self.text) / 2)
-  y = y + (h / 2 - font:getHeight() / 2)
-  g.print(self.text, x, y)
+  love.graphics.setColor(1, 1, 1)
+  love.graphics.draw(self.images[self.state], self:getScreenPosition())
 end
 
 return Button

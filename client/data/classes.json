@@ -1,0 +1,31 @@
+[
+  {
+    "name": "Warrior",
+    "graphics": ["001-Fighter01", "002-Fighter02", "004-Fighter04", "005-Fighter05", "006-Fighter06", "003-Fighter03"],
+    "hp": "120",
+    "mp": "30",
+    "str": 8,
+    "agi": 3,
+    "int": 1
+  },
+
+  {
+    "name": "Thief",
+    "graphics": ["007-Fighter07", "017-Thief02", "018-Thief03", "019-Thief04"],
+    "hp": "80",
+    "mp": "60",
+    "str": 3,
+    "agi": 8,
+    "int": 3
+  },
+
+  {
+    "name": "Mage",
+    "graphics": ["025-Cleric01", "036-Mage04", "037-Mage05", "038-Mage06"],
+    "hp": "60",
+    "mp": "120",
+    "str": 1,
+    "agi": 2,
+    "int": 9
+  }
+]

@@ -11,6 +11,7 @@ Input:bind('mouse', 'released', function(x, y, button)
   print('mousereleased', x, y, button)
 end)
 ]]
+local Emitter = require 'src.emitter'
 
 local Input = {
   emitters = {

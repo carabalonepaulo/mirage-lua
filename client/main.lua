@@ -1,12 +1,17 @@
-require 'src.tiete'
+require 'src.globals'
 
-function love.load()
+function love.load(args)
   love.keyboard.setTextInput(false)
 
+  -- registra todas as cenas do jogo
   Yui:load('boot')
   Yui:load('login')
+  Yui:load('account')
+  Yui:load('create_char')
+  Yui:load('test')
 
-  Yui:call('boot')
+  -- chama a cena de boot
+  Yui:call(args[1] == '--test' and 'test' or 'boot')
 end
 
 function love.update(dt)

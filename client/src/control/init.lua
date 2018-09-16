@@ -1,6 +1,28 @@
--- Tanto a atualização quando a renderização dos controles só ocorre
--- quando ele está VISÍVEL (preciso lembrar disso).
+--[[
+Eventos:
+- enter: quando o cursor do mouse entra na área do objeto
+- leave: quando o cursor do mouse sai da área do objeto
+- press: quando o botão esquerdo do mouse é pressionado (e está sobre o objeto)
+- click: quando o botão esquerdo do mouse é solto (após ter sido pressionado)
 
+Variáveis de estado:
+- mouse_over: quando o cursor do mouse está sobre o objeto
+- mouse_down: quando o botão esquerdo do mouse está pressionado
+
+Propriedades:
+- x: posição do objeto no eixo horizontal
+- y: posição do objeto no eixo vertical
+- z: TODO
+- width: largura do objeto
+- height: altura do objeto
+- visible: se o objeto estiver visível, então true, senão false
+
+Getters:
+- getPosition: x, y
+- getSize: width, height
+- getDimensions: x, y, width, height
+]]
+local class = require 'lib.30log'
 local Control = class('Control')
 
 function Control:init(x, y, width, height)
@@ -10,20 +32,25 @@ function Control:init(x, y, width, height)
   self.width = width
   self.height = height
   self.visible = true
+  self.parent = nil
   self.events = {}
 
   -- uso interno somente
   self.mouse_over = false
   self.mouse_down = false
-
-
-  --[[self:on('enter', function() print('enter') end)
-  self:on('leave', function() print('leave') end)
-  self:on('click', function() print('click') end)]]
 end
 
 function Control:getPosition()
   return self.x, self.y
+end
+
+function Control:getScreenPosition()
+  if self.parent then
+    local x, y = self.parent:getScreenPosition()
+    return self.x + x, self.y + y
+  else
+    return self.x, self.y
+  end
 end
 
 function Control:getSize()
@@ -32,6 +59,10 @@ end
 
 function Control:getDimensions()
   return self.x, self.y, self.width, self.height
+end
+
+function Control:setParent(control)
+  self.parent = control
 end
 
 function Control:on(event_name, callback)
@@ -52,8 +83,15 @@ function Control:emit(event_name, ...)
 end
 
 function Control:doEvents()
-  local x, y = love.mouse.getPosition()
-  if x > self.x and x < self.x + self.width and y > self.y and y < self.y + self.height then
+  local mx, my = love.mouse.getPosition()
+  local x, y = self.x, self.y
+
+  if self.parent then
+    x = x + self.parent.x
+    y = y + self.parent.y
+  end
+
+  if mx > x and mx < x + self.width and my > y and my < y + self.height then
     if not self.mouse_over then
       self:emit('enter')
     end

@@ -1,4 +1,5 @@
-local setScissor = love.graphics.setScissor
+--local setScissor = love.graphics.setScissor
+local class = require 'lib.30log'
 local Scene = class 'Scene'
 
 function Scene:init()
@@ -13,7 +14,8 @@ end
 
 -- Quando for preciso adicionar mais de um controle por chamada
 -- isso evita a reordenação da lista a cada inserção.
-function Scene:addControls(control_list)
+function Scene:addControls(...)
+  local control_list = {...}
   for i = 1, #control_list do
     table.insert(self.controls, control_list[i])
   end
@@ -37,9 +39,9 @@ function Scene:drawControls()
   local controls = self.controls
   for i = 1, #controls do
     if controls[i].visible then
-      setScissor(controls[i]:getDimensions())
+      love.graphics.setScissor(controls[i]:getDimensions())
       controls[i]:draw()
-      setScissor()
+      love.graphics.setScissor()
     end
   end
 end

@@ -1,4 +1,4 @@
-local BootScene = Scene:extend('BootScene')
+local BootScene = require('src.scene'):extend('BootScene')
 
 function BootScene:init()
   BootScene.super.init(self)

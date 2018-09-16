@@ -1,7 +1,12 @@
 {
   "host": "*",
   "port": 5000,
-  "motd": "Mensagem do dia!",
+  "bandwidth": {
+    "incoming": 0,
+    "outgoing": 0
+  },
 
-  "max_players": 96
+  "motd": "Mensagem do dia!",
+  "max_players": 96,
+  "max_chars": 5
 }

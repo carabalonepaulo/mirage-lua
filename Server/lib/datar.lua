@@ -1,7 +1,7 @@
-local class = require '30log'
+local class = require 'lib.30log'
 local json = require 'cjson'
 
-local Datar = class('Datar')
+local Datar = class 'Datar'
 
 function Datar:init(file_name)
   self._data = {}
@@ -63,6 +63,26 @@ function Datar:where(condition)
     end
   end
   return result
+end
+
+function Datar:any(condition)
+  local data_objs = self._data
+  for i = 1, #data_objs do
+    if condition(data_objs[i]) then
+      return true
+    end
+  end
+  return false
+end
+
+function Datar:first(condition)
+  local data_objs = self._data
+  for i = 1, #data_objs do
+    if condition(data_objs[i]) then
+      return data_objs[i]
+    end
+  end
+  return nil
 end
 
 function Datar:find(object)

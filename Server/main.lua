@@ -1,7 +1,9 @@
--- port 5000
--- max 32 peers
-local Server = require('src.server')()
-while true do
-  Server:update()
-end
-Server:close()
+package.path = package.path..';./?/init.lua'
+
+local utils = require 'lib.utils'
+local json = require 'cjson'
+
+Settings = json.decode(utils.readFile('data/settings.json'))
+
+Server = require('src.server')()
+Server:loop()
