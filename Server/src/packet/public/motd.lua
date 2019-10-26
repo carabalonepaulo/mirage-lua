@@ -1,5 +1,9 @@
 local Header = require 'src.packet.headers'
+local Packet = require 'src.packet.packet'
+local MotdPacket = Packet:extend 'MotdPacket'
 
-return function(self, player_index)
-  self:sendTo(player_index, Header.Motd, Settings.motd)
+function MotdPacket:handle(data)
+  self:sendTo(self.player_id, Header.Motd, Settings.motd)
 end
+
+return MotdPacket

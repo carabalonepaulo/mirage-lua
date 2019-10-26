@@ -146,7 +146,9 @@ function Server:onReceive(peer, data)
   local player_index = tonumber(ffi.cast('int', peer.data))
 
   if Packet[header] then
-    Packet[header](self, player_index, data)
+    local packet = Packet[header](self, player_index)
+    packet:handle(data)
+    packet = nil
   else
     -- ban
   end

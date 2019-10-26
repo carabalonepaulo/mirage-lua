@@ -1,8 +1,13 @@
-return function(self, player_index)
-  if not self.players[player_index]:isAdmin() then
-    self:ban(self.players[player_index].account.name)
-    self:forceDisconnect(player_index)
+local Packet = require 'src.packet.packet'
+local ShutdownPacket = Packet:extend 'ShutdownPacket'
+
+function ShutdownPacket:handle(data)
+  if not self.server.players[self.player_id]:isAdmin() then
+    self.server:ban(self.players[self.player_id].account.name)
+    self.server:forceDisconnect(self.player_id)
     return
   end
-  self:shutdown()
+  self.server:shutdown()
 end
+
+return ShutdownPacket
