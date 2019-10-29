@@ -1,28 +1,18 @@
+local TextButton = require 'src.control.text_button'
 local Scene = require('src.scene'):extend('TestScene')
-local Map = require 'src.map'
-local Panel = require 'src.control.panel'
-local Button = require 'src.control.button'
-
 
 function Scene:init()
   Scene.super.init(self)
-  self.map = Map('map2')
 
-  local panel = Panel('test', 100, 100)
-  local button = Button('button', 0, 0)
-  panel:addControl(button)
+  local button = TextButton('Teste', 50, 50, 100)
 
-  local button2 = Button('button', 10, 10)
-  self:addControls(panel, button2)
+  self:addControl(button)
 end
 
 function Scene:draw()
-  self.map:draw()
+  love.graphics.clear(50 / 255, 125 / 255, 168 / 255)
+  
   Scene.super.draw(self)
-
-  love.graphics.setColor(1, 1, 1)
-  --[[love.graphics.print(string.format('FPS: %i', love.timer.getFPS()), 0, 0)
-  love.graphics.print(string.format('Tilesets: %i', #self.map.tilesets), 0, 20)]]
 end
 
 return Scene
