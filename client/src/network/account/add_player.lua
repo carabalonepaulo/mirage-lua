@@ -10,5 +10,4 @@ return function(player, data)
   other_player.character.position = Vector2(data.position.x, data.position.y)
   
   table.insert(Network.players, other_player)
-  print('jogador adicionado')
 end

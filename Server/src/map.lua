@@ -9,7 +9,7 @@ function Map:init(map_name)
 end
 
 function Map:addPlayer(player)
-  print(string.format('Jogador #%i entrou no mapa "%s".', player.index, self.name))
+  --print(string.format('Jogador #%i entrou no mapa "%s".', player.index, self.name))
   table.insert(self.players, player)
 end
 
@@ -18,7 +18,7 @@ function Map:removePlayer(player)
   for i = 1, #players do
     if players[i] == player then
       table.remove(players, i)
-      print(string.format('Jogador #%i saiu do mapa "%s".', i, self.name))
+      --print(string.format('Jogador #%i saiu do mapa "%s".', i, self.name))
     end
   end
 end
