@@ -1,0 +1,107 @@
+--local struct = require 'lib.struct'
+local Vector2 = require('lib.struct').Vector2
+local math = require 'math'
+local Scene = require('src.scene'):extend('TestScene')
+
+local GRID = { W = 32, H = 32, COLOR = { 0, 0, 0, .1 } }
+
+--local Vector2 = struct { x = 0, y = 0 }
+local Character = function()
+  return {
+    name = '',
+    color = { 0, 0, 0, 1 },
+
+    x = 10, y = 10,
+    offset = Vector2(),
+    width = 32, height = 32,
+
+    moving = false,
+    target = nil,
+    movement = nil,
+
+    speed = 230
+  }
+end
+
+local font = love.graphics.getFont()
+
+function Scene:init()
+  Scene.super.init(self)
+
+  self.characters = { Character { name = 'Soreto' } }
+end
+
+function Scene:updateCharacterMovement(player, dt)
+  local player = self.characters[1]
+  player.offset.x = player.offset.x + player.speed * dt * player.movement.x
+  player.offset.y = player.offset.y + player.speed * dt * player.movement.y
+
+  if math.abs(player.offset.x) >= GRID.W then
+    player.x = player.x + player.movement.x
+    player.offset.x = 0
+    player.movement.x = 0
+  end
+  if math.abs(player.offset.y) >= GRID.H then
+    player.y = player.y + player.movement.y
+    player.offset.y = 0
+    player.movement.y = 0
+  end
+
+  if player.movement.x == 0 and player.movement.y == 0 then
+    player.movement = nil
+  end
+end
+
+function Scene:updatePlayerMovement()
+  local mov = Vector2()
+  if love.keyboard.isDown('a') then
+    mov.x = -1
+  end
+  if love.keyboard.isDown('d') then
+    mov.x = 1
+  end
+  if love.keyboard.isDown('w') then
+    mov.y = -1
+  end
+  if love.keyboard.isDown('s') then
+    mov.y = 1
+  end
+
+  if mov.x ~= 0 or mov.y ~= 0 then
+    self.characters[1].movement = mov
+  end
+end
+
+function Scene:update(dt)
+  for i, char in pairs(self.characters) do
+    if char.movement then
+      self:updateCharacterMovement(char, dt)
+    end
+  end
+  
+  if not self.characters[1].movement then
+    self:updatePlayerMovement()
+  end
+end
+
+function Scene:draw()
+  local player = self.characters[1]
+
+  love.graphics.clear(1, 1, 1, 1)
+
+  local max_w, max_h = love.graphics.getDimensions()
+  local max_x, max_y = max_w / 32, max_h / 32
+  for x = 0, max_x do
+    for y = 0, max_y do
+      love.graphics.setColor(GRID.COLOR)
+      love.graphics.rectangle('line', x * GRID.W, y * GRID.H, 32, 32)
+    end
+  end
+
+  love.graphics.setColor(player.color)
+  love.graphics.rectangle('fill', player.x * GRID.W + player.offset.x, player.y * GRID.W + player.offset.y, player.width, player.height)
+
+  Scene.super.draw(self)
+end
+
+return Scene

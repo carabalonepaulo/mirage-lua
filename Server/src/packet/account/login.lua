@@ -1,34 +1,60 @@
-local b64 = require 'libb64'
+local rand = require('math').random
+local Character = require 'src.character'
+local Vector2 = require('lib.struct').Vector2
 local Header = require 'src.packet.headers'
-local Packet = require 'src.packet.packet'
-local LoginPacket = Packet:extend 'LoginPacket'
 
-function LoginPacket:handle(data)
-  local name, password = data[2], data[3]
+return function(server, player, data)
+  local player_id = player.index
 
-  if self.server.ban_list:find('name', name) ~= nil then
-    self:sendTo(self.player_id, Header.Login, 0)
-    return
-  end
+  local char = Character(data.name, data.color)  
+  char.map = server.maps[1]
+  char.position = Vector2(
+    rand(0, char.map:getWidth() - 1),
+    rand(0, char.map:getHeight() - 1)
+  )
 
-  local players = self.server.players
-  for i = 1, self.server.high_index do
-    if players[i] and players[i].account and players[i].account.name == name then
-      self:sendTo(self.player_id, Header.Login, 0)
-      return
+  server.players[player_id]:login(char)
+
+  -- envia informações do jogador para o client
+  server:sendTo(player_id, Header.Login, {
+    index = player_id,
+    map_name = char.map.name,
+    position = {
+      x = char.position.x,
+      y = char.position.y
+    }
+  })
+
+  -- envia todos os jogadores no mapa para o client
+  local players = {}
+  local map_players = char.map.players
+  for i = 1, #map_players do
+    local character = map_players[i].character
+
+    if character ~= char then
+      server:sendTo(player_id, Header.AddPlayer, {
+        index = map_players[i].index,
+        name = character.name,
+        color = character.color,
+        position = {
+          x = character.position.x,
+          y = character.position.y
+        }
+      })
     end
   end
 
-  local password = b64.encode(password)
-  local account = self.server.accounts:first(function(account)
-    return account.name == name and account.password == password
-  end)
-  if account then
-    self.server.players[self.player_id]:login(account)
-    self:sendTo(self.player_id, Header.Login, 1)
-  else
-    self:sendTo(self.player_id, Header.Login, 0)
-  end
+  -- envia as informações do jogador para todos no mesmo mapa
+  server:sendToGroup(function(player)
+    if player.character then
+      return player.character.map == char.map
+    else
+      return false
+    end
+  end, Header.AddPlayer, {
+    index = player_id,
+    name = char.name,
+    color = char.color,
+    position = { x = char.position.x, y = char.position.y }
+  })
 end
-
-return LoginPacket

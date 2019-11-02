@@ -1,8 +1,11 @@
 local class = require 'lib.30log'
 local enet = require 'enet'
-local binser = require 'lib.binser'
+local bitser = require 'lib.bitser'
 local pp = require 'lib.pp'
+local rand = love.math.random
 local Header = require 'src.network.headers'
+local Packet = require 'src.network.packet'
+local Character = require 'src.character'
 
 local SUCCESS = 1
 local FAIL = 0
@@ -11,10 +14,11 @@ local Network = class 'Network'
 
 function Network:init()
   self.host = enet.host_create()
-  self.account_status = 'unitialized'
   self.conn_status = 'none'
-  self.motd = ''
-  self.account = {}
+
+  self.index = nil
+  self.character = {}
+  self.players = {}
 end
 
 function Network:connect(ip, port)
@@ -33,8 +37,8 @@ function Network:getStatus()
   return self.conn_status
 end
 
-function Network:send(header, ...)
-  self.server_peer:send(binser.serialize(header, ...))
+function Network:send(header, data)
+  self.server_peer:send(bitser.dumps({ header = header, data = data }))
 end
 
 function Network:update(dt)
@@ -42,7 +46,11 @@ function Network:update(dt)
   if event then
     if event.type == 'connect' then
       self.conn_status = 'connected'
-      Yui:call('login')
+      self:login(tostring(rand(1000, 9999)), {
+        rand(),
+        rand(),
+        rand()
+      })
     elseif event.type == 'receive' then
       self:handleData(event.data)
     elseif event.type == 'disconnect' then
@@ -52,52 +60,19 @@ function Network:update(dt)
 end
 
 function Network:handleData(data)
-  local data, len = binser.deserialize(data)
-  local header = data[1]
+  local packet = bitser.loads(data)
+  local header = packet.header
 
-  if header == Header.Login then
-    self:handleLogin(data[2])
-  elseif header == Header.Register then
-  elseif header == Header.Motd then
-    self:handleMotd(data[2])
-  elseif header == Header.CharactersInfo then
-    self:handleCharsInfo(data[2])
+  print(header)
+
+  if Packet[header] then
+    Packet[header](self, packet.data)
   end
 end
 
-function Network:askMotd()
-  self:send(Header.Motd)
-end
-
-function Network:askLogin(name, password)
-  self.account.name = name
-  self:send(Header.Login, name, love.data.hash('sha256', password))
-end
-
-function Network:sendDeleteChar(char_index)
-  self:send(Header.DeleteChar, char_index)
-end
-
-function Network:handleLogin(result)
-  if result == SUCCESS then
-    self.account_status = 'connected'
-    Yui:call('account')
-  else
-    self.account_status = 'refused'
-    self.account.name = nil
-  end
-end
-
-function Network:handleMotd(motd)
-  self.motd = motd
-end
-
-function Network:handleCharsInfo(chars)
-  self.account.characters = chars
-  -- se está na tela de seleção de char quando a informação chegou...
-  if Yui.scene.name == 'AccountScene' then
-    Yui.scene:resetControls()
-  end
+function Network:login(name, color)
+  self.character = Character(name, color)
+  self:send(Header.Login, { name = name, color = color })
 end
 
 return Network

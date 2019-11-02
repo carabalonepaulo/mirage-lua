@@ -1,3 +1,2 @@
-return function(player_index, data)
-  -- faz login nessa porra
+return function(server, player, data)
 end

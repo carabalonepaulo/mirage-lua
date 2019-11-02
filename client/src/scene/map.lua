@@ -1,6 +1,6 @@
 --local struct = require 'lib.struct'
 local Map = require 'src.map'
-local MapScene = require('src.scene'):extend('TestScene')
+local MapScene = require('src.scene'):extend('MapScene')
 
 local GRID = { W = 32, H = 32, COLOR = { 0, 0, 0, .1 } }
 
@@ -9,11 +9,12 @@ local font = love.graphics.getFont()
 function MapScene:init()
   MapScene.super.init(self)
 
-  self.map = Map('map2')
+  self.map = Network.character.map
 end
 
 function MapScene:update(dt)
   MapScene.super.update(self, dt)
+  Network:update(dt)
   self.map:update(dt)
 end
 

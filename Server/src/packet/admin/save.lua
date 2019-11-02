@@ -1,13 +1,8 @@
-local Packet = require 'src.packet.packet'
-local SavePacket = Packet:extend 'SavePacket'
-
-function SavePacket:handle(data)
-  if not self.server.players[self.player_id]:isAdmin() then
-    self.server:ban(self.players[self.player_id].account.name)
-    self.server:forceDisconnect(self.player_id)
+return function(server, player, data)
+  if not server.players[player.index]:isAdmin() then
+    --server:ban(players[player_id].account.name)
+    --server:forceDisconnect(player_id)
     return
   end
-  self.server:save()
+  server:save()
 end
-
-return SavePacket

@@ -1,13 +1,13 @@
+require 'lib.struct'
 require 'src.globals'
 
 function love.load(args)
+  love.math.setRandomSeed(love.timer.getTime())
   love.keyboard.setTextInput(false)
 
   -- registra todas as cenas do jogo
   Yui:load('boot')
-  Yui:load('login')
-  Yui:load('account')
-  Yui:load('create_char')
+  Yui:load('map')
   Yui:load('test')
 
   -- chama a cena de boot

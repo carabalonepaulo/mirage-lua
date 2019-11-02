@@ -6,6 +6,7 @@ function ImageCache:init()
 end
 
 function ImageCache:load(file_name)
+  print(file_name)
   self.images[file_name] = love.graphics.newImage(file_name)
 end
 

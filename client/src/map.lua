@@ -1,13 +1,10 @@
 local class = require 'lib.30log'
 local json = require 'lib.json'
-
-local PFE = '([0-9A-Za-z-]+%.[a-z]+)'
-local PF = '([0-9A-Za-z-]+)%.[a-z]+'
-
 local Map = class 'Map'
 
 function Map:init(map_name)
-  self.data = json.decode(love.filesystem.read('data/maps/'..map_name..'.json'))
+  self.name = map_name
+  self.data = require('data.maps.'..map_name)
   self:loadTilesets()
 end
 
@@ -15,13 +12,16 @@ function Map:loadTilesets()
   self.tilesets = {}
   local tilesets = self.data.tilesets
   for i = 1, #tilesets do
-    local tileset_data_path = 'data/tilesets/'..tilesets[i].source:match(PFE)
+    local tileset_data_path = 'data/tilesets/'..tilesets[i].name..'.json'
     local tileset_data = json.decode(love.filesystem.read(tileset_data_path))
-    tileset_data.image = tileset_data.image:match(PF)
 
-    ImageCache:load('assets/tilesets/'..tileset_data.image..'.png')
+    ImageCache:load('assets/tilesets/'..tilesets[i].name..'.png')
     table.insert(self.tilesets, tileset_data)
   end
+end
+
+function Map:update(dt)
+
 end
 
 function Map:draw()
@@ -30,14 +30,23 @@ function Map:draw()
   self:drawLayer(2)
 
   -- players
+  local players = Network.players
+  for i = 1, #players do
+    local char = players[i].character
+    love.graphics.setColor(char.color)
+    love.graphics.rectangle('fill', char.position.x * 32, char.position.y * 32, 32, 32)
+  end
   
+  local char = Network.character
+  love.graphics.setColor(char.color)
+  love.graphics.rectangle('fill', char.position.x * 32, char.position.y * 32, 32, 32)
 
   -- trees
   self:drawLayer(3)
 end
 
 function Map:drawLayer(layer_index)
-  local tileset = ImageCache:getTileset(self.tilesets[1].image)
+  local tileset = ImageCache:getTileset(self.tilesets[1].name)
   local layer = self.data.layers[layer_index]
   local max = layer.height * layer.width
 
@@ -55,6 +64,7 @@ function Map:drawLayer(layer_index)
 
     local quad = love.graphics.newQuad(tile_x * tile_width, tile_y * tile_height,
       tile_width, tile_height, tileset:getDimensions())
+    love.graphics.setColor(1, 1, 1, 1)
     love.graphics.draw(tileset, quad, x * tile_width, y * tile_height)
 
     if x == map_width - 1 then
