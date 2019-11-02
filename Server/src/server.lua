@@ -29,6 +29,10 @@ function Server:init()
   self:setupHost()
 end
 
+function Server:getHighIndex()
+  return self.high_index
+end
+
 function Server:load()
   --local init = os.clock()
   table.insert(self.maps, Map('map2'))

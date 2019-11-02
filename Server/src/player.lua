@@ -20,13 +20,15 @@ end
 function Player:logout()
   if self.character then
     self.character.map:removePlayer(self)
-    Server:sendToGroup(function(player)
-      if player.character then
-        return player.character.map == self.character.map
-      else
-        return false
+
+    local players = self.character.map.players
+    local high_index = Server:getHighIndex()
+
+    for i = 1, high_index do
+      if players[i] then
+        Server:sendTo(players[i].index, Header.RemovePlayer, self.index)
       end
-    end, Header.RemovePlayer, self.character.name)
+    end
   end
 end
 

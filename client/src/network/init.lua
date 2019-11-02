@@ -17,7 +17,6 @@ function Network:init()
   self.conn_status = 'none'
 
   self.index = nil
-  self.character = {}
   self.players = {}
 end
 
@@ -66,12 +65,11 @@ function Network:handleData(data)
   print(header)
 
   if Packet[header] then
-    Packet[header](self, packet.data)
+    Packet[header](packet.data)
   end
 end
 
 function Network:login(name, color)
-  self.character = Character(name, color)
   self:send(Header.Login, { name = name, color = color })
 end
 

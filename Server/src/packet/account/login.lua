@@ -18,10 +18,14 @@ return function(server, player, data)
   -- envia informações do jogador para o client
   server:sendTo(player_id, Header.Login, {
     index = player_id,
-    map_name = char.map.name,
-    position = {
-      x = char.position.x,
-      y = char.position.y
+    character = {
+      name = char.name,
+      color = char.color,
+      map_name = char.map.name,
+      position = {
+        x = char.position.x,
+        y = char.position.y
+      }
     }
   })
 
@@ -29,18 +33,19 @@ return function(server, player, data)
   local players = {}
   local map_players = char.map.players
   for i = 1, #map_players do
-    local character = map_players[i].character
-
-    if character ~= char then
-      server:sendTo(player_id, Header.AddPlayer, {
-        index = map_players[i].index,
-        name = character.name,
-        color = character.color,
-        position = {
-          x = character.position.x,
-          y = character.position.y
-        }
-      })
+    if map_players[i] then
+      local character = map_players[i].character
+      if character ~= char then
+        server:sendTo(player_id, Header.AddPlayer, {
+          index = map_players[i].index,
+          name = character.name,
+          color = character.color,
+          position = {
+            x = character.position.x,
+            y = character.position.y
+          }
+        })
+      end
     end
   end
 

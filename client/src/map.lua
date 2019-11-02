@@ -32,14 +32,16 @@ function Map:draw()
   -- players
   local players = Network.players
   for i = 1, #players do
-    local char = players[i].character
-    love.graphics.setColor(char.color)
-    love.graphics.rectangle('fill', char.position.x * 32, char.position.y * 32, 32, 32)
+    if players[i] then
+      local char = players[i].character
+      love.graphics.setColor(char.color)
+      love.graphics.rectangle('fill', char.position.x * 32, char.position.y * 32, 32, 32)
+    end
   end
   
-  local char = Network.character
+  --[[local char = Network.character
   love.graphics.setColor(char.color)
-  love.graphics.rectangle('fill', char.position.x * 32, char.position.y * 32, 32, 32)
+  love.graphics.rectangle('fill', char.position.x * 32, char.position.y * 32, 32, 32)]]
 
   -- trees
   self:drawLayer(3)

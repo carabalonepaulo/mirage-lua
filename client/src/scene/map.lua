@@ -9,7 +9,10 @@ local font = love.graphics.getFont()
 function MapScene:init()
   MapScene.super.init(self)
 
-  self.map = Network.character.map
+  self.map = Network.players[Network.index].character.map
+end
+
+function MapScene:handlePlayerMovement(player)
 end
 
 function MapScene:update(dt)

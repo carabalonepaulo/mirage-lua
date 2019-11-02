@@ -9,18 +9,11 @@ function Map:init(map_name)
 end
 
 function Map:addPlayer(player)
-  --print(string.format('Jogador #%i entrou no mapa "%s".', player.index, self.name))
-  table.insert(self.players, player)
+  self.players[player.index] = player
 end
 
 function Map:removePlayer(player)
-  local players = self.players
-  for i = 1, #players do
-    if players[i] == player then
-      table.remove(players, i)
-      --print(string.format('Jogador #%i saiu do mapa "%s".', i, self.name))
-    end
-  end
+  self.players[player.index] = nil
 end
 
 function Map:getTileWidth()
