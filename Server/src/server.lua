@@ -11,7 +11,9 @@ local utils = require 'lib.utils'
 local enet = require 'lib.enet'
 
 local Header = require 'src.packet.headers'
-local Packet = require 'src.packet'
+local PacketHandler = require 'src.packet.handler'
+local PacketFactory = require 'src.packet.factory'
+--PacketFactory[Header.Login](player_index, character)
 local Player = require 'src.player'
 local Map = require 'src.map'
 
@@ -34,9 +36,9 @@ function Server:getHighIndex()
 end
 
 function Server:load()
-  --local init = os.clock()
+  local init = os.clock()
   table.insert(self.maps, Map('map2'))
-  --log.debug(string.format('Server initialized in %0.2fs', os.clock() - init))
+  log.debug(string.format('Server initialized in %0.2fs', os.clock() - init))
 end
 
 function Server:save()
@@ -146,8 +148,8 @@ function Server:onReceive(peer, raw_data)
   local header = packet.header
   local player_index = tonumber(ffi.cast('int', peer.data))
 
-  if Packet[header] then
-    Packet[header](self, self.players[player_index], packet.data)
+  if PacketHandler[header] then
+    PacketHandler[header](self, self.players[player_index], packet.data)
   else
     -- ban
   end
@@ -156,10 +158,12 @@ end
 function Server:onDisconnect(peer)
   local index = tonumber(ffi.cast('int', peer.data))
   table.insert(self.free_indices, index)
-  self.players[index]:logout()
-  self.players[index] = nil
-end
 
+  if self.players[index] then
+    self.players[index]:logout()
+    self.players[index] = nil
+  end
+end
 
 function Server:forceDisconnect(player_index)
   enet.enet_peer_reset(self.players[player_index].peer, 0)

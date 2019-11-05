@@ -1,5 +1,6 @@
 local class = require 'lib.30log'
 local Header = require 'src.packet.headers'
+local PacketFactory = require 'src.packet.factory'
 local Player = class 'Player'
 
 function Player:init(index, ip, port, peer)
@@ -26,7 +27,8 @@ function Player:logout()
 
     for i = 1, high_index do
       if players[i] then
-        Server:sendTo(players[i].index, Header.RemovePlayer, self.index)
+        Server:sendTo(players[i].index, Header.RemovePlayer,
+          PacketFactory[Header.removePlayer](self.index))
       end
     end
   end
